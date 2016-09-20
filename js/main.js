@@ -175,7 +175,7 @@ function drawGraph(actualWeights, height, goalWeight) {
 			scales: {
             yAxes: [{
                 ticks: {
-                    min: (goalWeight - 10),
+                    min: (goalWeight - 5),
                 },
                 id: 'y-axis-0',
                 position: 'left',
