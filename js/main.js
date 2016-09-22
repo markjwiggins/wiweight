@@ -42,63 +42,24 @@ function fitbit2Weights(fbResponse) {
 }
 
 function drawGraph(actualWeights, height, goalWeight) {
-		var labels = [],
-			startDate = moment($('#start-date').val()),
-			today = moment(),
-			daysDiff = (today.diff(startDate, 'days'));
+		var startDate = moment($('#start-date').val()),
+		    today = moment(),
+			  daysDiff = (today.diff(startDate, 'days'));
 			
-		var rollAvg3 = [],
-			rollAvg10 = [],
-			bmi = [],
-			goal = [];
+		var bmi = [],
+  			goal = [];
 
 		// calculate date labels
-		for (var i = 0; i <= daysDiff; i++) {
-			labels.push(startDate.clone().add(i, 'days').format('DD-MMM-YYYY'));
-		}
+		var labels = createDateArray(startDate, daysDiff);
 
     // align weights to dates
-    var weights = [];
-    
-    for (var i = 0; i < labels.length; i++) {
-      if (labels[i] in actualWeights) {
-        weights.push(actualWeights[labels[i]]);
-      } else {
-        if (i > 0) {
-          weights.push(weights[i - 1]);
-        } else {
-          weights.push(0);
-        }
-      }
-    }
-    
+    var weights = alignWeights2Dates(labels, actualWeights);
 
 		// calculate three day rolling
-		for (var i = 0; i < weights.length; i++) {
-			if (i > 1) {
-				rollAvg3.push(((parseInt(weights[i]) + parseInt(weights[i - 1]) + parseInt(weights[i - 2])) / 3).toFixed(1));
-			} else {
-				rollAvg3.push(weights[i]);
-			}
-		}
+		var rollAvg3 = calculate3DayAvg(weights);
 
 		// calculate ten day rolling
-		for (var i = 0; i < weights.length; i++) {
-			if (i > 8) {
-				rollAvg10.push(((parseInt(weights[i]) +
-  				parseInt(weights[i - 1]) +
-  				parseInt(weights[i - 2]) +
-  				parseInt(weights[i - 3]) +
-  				parseInt(weights[i - 4]) +
-  				parseInt(weights[i - 5]) +
-  				parseInt(weights[i - 6]) +
-  				parseInt(weights[i - 7]) +
-  				parseInt(weights[i - 8]) +
-  				parseInt(weights[i - 9])) / 10).toFixed(1));
-			} else {
-				rollAvg10.push(weights[i]);
-			}
-		}
+		var rollAvg7 = calculate7DayAvg(weights);
 		
 		// set goal weight line
 		for (var i = 0; i < weights.length; i++) {
@@ -119,9 +80,9 @@ function drawGraph(actualWeights, height, goalWeight) {
 					yAxisID: 'y-axis-0',
 					fill: false,
 					borderColor: "#46BFBD",
-            pointBackgroundColor: "#46BFBD",
-            pointBorderWidth: 1,
-            pointHoverRadius: 5,
+          pointBackgroundColor: "#46BFBD",
+          pointBorderWidth: 1,
+          pointHoverRadius: 5,
 					data: weights,
         },
 				{
@@ -130,21 +91,21 @@ function drawGraph(actualWeights, height, goalWeight) {
 					type: 'line',
 					yAxisID: 'y-axis-0',
 					borderColor: "#F7464A",
-            pointBackgroundColor: "#F7464A",
-            pointBorderWidth: 1,
-            pointHoverRadius: 5,
+          pointBackgroundColor: "#F7464A",
+          pointBorderWidth: 1,
+          pointHoverRadius: 5,
 					data: rollAvg3,
         },
 				{
-					label: "10-Day Rolling Average",
+					label: "7-Day Rolling Average",
 					fill: false,
 					type: 'line',
 					yAxisID: 'y-axis-0',
 					borderColor: "#FDB45C",
-            pointBackgroundColor: "#FDB45C",
-            pointBorderWidth: 1,
-            pointHoverRadius: 5,
-					data: rollAvg10,
+          pointBackgroundColor: "#FDB45C",
+          pointBorderWidth: 1,
+          pointHoverRadius: 5,
+					data: rollAvg7,
         },
         {
 					label: "BMI",
@@ -231,6 +192,7 @@ function recalculate(weights, goal) {
   $('#remaining').text((currentWeight - goalWeight).toFixed(1));
   
   var originalDaysToGoal = (((startingWeight - goalWeight) / perWeek) * 7 ),
+      
       currentDaysToGoal = (((currentWeight - goalWeight) / perWeek) * 7 );
   
   $('#original-goal-date').text(startDate.clone().add(originalDaysToGoal, 'days').format('DD-MMM-YYYY'));
@@ -246,6 +208,36 @@ function recalculate(weights, goal) {
 
 function kg2lbs(kg) {
   return parseInt(kg * 2.2046226218).toFixed(1);
+}
+
+function alignWeights2Dates(dates, actualWeights) {
+  // align weights to dates
+  var weights = [];
+  
+  for (var i = 0; i < dates.length; i++) {
+    if (dates[i] in actualWeights) {
+      weights.push(actualWeights[dates[i]]);
+    } else {
+      if (i > 0) {
+        weights.push(weights[i - 1]);
+      } else {
+        weights.push(0);
+      }
+    }
+  }
+  
+  return weights;
+}
+
+function createDateArray(start, days) {
+  var dates = [];
+  
+	// calculate date labels
+	for (var i = 0; i <= days; i++) {
+		dates.push(start.clone().add(i, 'days').format('DD-MMM-YYYY'));
+	}
+	
+	return dates;
 }
 
 function calculateBMI(weight, height) {
@@ -288,6 +280,41 @@ function calculateWeeklyDeficit(startDate, endDate, startWeight, currentWeight) 
   var daily = calculateDailyDeficit(startDate, endDate, startWeight, currentWeight);
 
   return (daily * 7).toFixed(0);
+}
+
+function calculate7DayAvg(weights) {
+  var rollAvg7 = [];
+		// calculate ten day rolling
+	for (var i = 0; i < weights.length; i++) {
+		if (i > 8) {
+			rollAvg7.push(((parseInt(weights[i]) +
+				parseInt(weights[i - 1]) +
+				parseInt(weights[i - 2]) +
+				parseInt(weights[i - 3]) +
+				parseInt(weights[i - 4]) +
+				parseInt(weights[i - 5]) +
+				parseInt(weights[i - 6])) / 7).toFixed(1));
+		} else {
+			rollAvg7.push(weights[i]);
+		}
+	}
+		
+	return rollAvg7;
+  
+}
+
+function calculate3DayAvg(weights) {
+  var rollAvg3 = [];
+  
+	for (var i = 0; i < weights.length; i++) {
+		if (i > 1) {
+			rollAvg3.push(((parseInt(weights[i]) + parseInt(weights[i - 1]) + parseInt(weights[i - 2])) / 3).toFixed(1));
+		} else {
+			rollAvg3.push(weights[i]);
+		}
+	}
+	
+	return rollAvg3;
 }
 
 function getActivityFactor(activityType) {
