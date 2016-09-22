@@ -1,11 +1,11 @@
 {
-  "dob": "13/02/1986",
+  "dob": "13-Feb-1986",
   "gender": "Male",
   "height": 70,
-  "startdate": "",
+  "startdate": false,
   "goalweight": 175,
-  "activitylevel": "Moderately Active",
-  "goal": 175,
+  "activityfactor": "Moderately Active",
+  "lbsperweek": 2,
   "weights": {
     "06-Sep-2016": 195.6,
     "07-Sep-2016": 195.6,

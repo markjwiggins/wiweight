@@ -1,73 +1,44 @@
 $(function() {
-  $.getJSON( "data.json", function(data) {
-
+  $.getJSON( "weights.json", function(data) {
+    // fitbit api request format
+    // https://api.fitbit.com/1/user/-/body/log/weight/date/2016-09-06/2016-09-17.json
+    // Ref: https://dev.fitbit.com/docs/body/
+    
     var weights = data.weights,
-        dob = moment(data.dob, "DD-MMM-YYYY"),
-        age = calculateAge(dob),
-        gender = data.gender,
-        height = parseInt(data.height),
-        startdate = findStartDate(data.startdate, weights),
-        startweight = findStartWeight(data.startdate, weights),
-        currentweight = getLatestWeight(weights),
-        goalweight = parseInt(data.goalweight),
-        activityfactor = data.activityfactor,
-        lbsperweek = parseInt(data.lbsperweek);
+        goal = data.goal,
+        age = $('#age'),
+        dob = $('#dob'),
+        height = $('#height').val(),
+        dobVal = moment($('#dob').val()),
+        today = moment();
+        
+    age.val(today.diff(dobVal, 'years'));
     
-    setDefaultValues(startdate, startweight, goalweight, gender, height, dob, age, activityfactor, lbsperweek);
+    dob.blur(function() { age.val(today.diff(dob.val(), 'years')); });
     
-    $('#weight-delta').text(calculateTotalWeightDelta(startdate, weights));
-    $('#remaining').text(calculateRemainingWeight(weights, goalweight));
-    $('#original-bmr').text(calculateBMR(gender, height, startweight, age, activityfactor));
-    $('#current-bmr').text(calculateBMR(gender, height, currentweight, age, activityfactor));
-    $('#daily-calorie-deficit').text(calculateDailyDeficit(startdate, moment(), startweight, currentweight));
-    $('#weekly-calorie-deficit').text(calculateWeeklyDeficit(startdate, moment(), startweight, currentweight));
-    $('#original-goal-date').text(calculateGoalDate(startdate, startweight, goalweight, lbsperweek));
-    $('#current-goal-date').text(calculateGoalDate(startdate, currentweight, goalweight, lbsperweek));
+    //weights = fitbit2Weights(fitbitResponse);
+    drawGraph(weights, height, goal);
     
+    recalculate(weights, goal);
     
-    // console.log(dob);
-    // console.log(gender);
-    // console.log(height);
-    // console.log(startdate);
-    // console.log(goalweight);
-    // console.log(activityfactor);
-    // console.log(weights);
-
+    $('#recalculate').click(function() {
+      recalculate(weights, goal);
+      return false;
+    });
   });
 });
 
-function calculateTotalWeightDelta(startdate, weights) {
-    var startweight = weights[startdate.format("DD-MMM-YYYY")],
-        endWeight = getLatestWeight(weights);
-    
-    return (endWeight - startweight).toFixed(1);
-}
-
-function calculateRemainingWeight(weights, goalweight) {
-  var endweight = getLatestWeight(weights);
-  return (goalweight - endweight).toFixed(1);
-}
-
-function calculateDaysToGoal(startweight, goalweight, lbsperweek) {
-  return (((startweight - goalweight) / lbsperweek) * 7 );
-}
-
-function calculateGoalDate(startdate, startweight, goalweight, lbsperweek) {
-  var daystogoal = calculateDaysToGoal(startweight, goalweight, lbsperweek),
-      date = startdate.clone().add(daystogoal, 'days').format('DD-MMM-YYYY');
-  return date;
-}
-
-function setDefaultValues(startdate, startweight, goalweight, gender, height, dob, age, activityfactor, lbsperweek) {
-  $('#start-date').val(startdate.format('YYYY-MM-DD'));
-  $('#start-weight').val(startweight);
-  $('#goal-weight').val(goalweight);
-  $('#gender option[value=' + gender + ']').attr('selected','selected');
-  $('#height').val(height);
-  $('#dob').val(dob.format('YYYY-MM-DD'));
-  $('#age').val(age);
-  $('#activity-level option[value="' + activityfactor + '"]').attr('selected','selected');
-  $('#loss-per-week option[value="' + lbsperweek + '"]').attr('selected','selected');
+function fitbit2Weights(fbResponse) {
+  var weights = fbResponse.weight,
+  rtn = {};
+  
+  for (var i = 0; i < weights.length; i++) {
+    var weight = weights[i],
+        date = moment(weight.date, "YYYY-MM-DD", true).format('DD-MMM-YYYY');
+    rtn[date] = kg2lbs(weight.weight);
+  }
+  
+  return rtn;
 }
 
 function drawGraph(actualWeights, height, goalWeight) {
@@ -239,10 +210,6 @@ function kg2lbs(kg) {
   return parseInt(kg * 2.2046226218).toFixed(1);
 }
 
-function calculateAge(dob) {
-  return moment().diff(moment(dob), 'years');
-}
-
 function alignWeights2Dates(dates, actualWeights) {
   // align weights to dates
   var weights = [];
@@ -278,8 +245,9 @@ function calculateBMI(weight, height) {
 }
 
 function calculateBMR(gender, height, weight, age, activity) {
-  var activityFactor = getActivityFactor(activity),
-      bmr = 0;
+  var activityFactor = getActivityFactor(activity);
+  
+  var bmr = 0;
   
   // calculate bmr
   switch (gender) {
@@ -297,6 +265,8 @@ function calculateBMR(gender, height, weight, age, activity) {
 }
 
 function calculateDailyDeficit(startDate, endDate, startWeight, currentWeight) {
+  startDate = moment(startDate);
+  endDate = moment(endDate, 'DD-MM-YYYY');
   
   var loss = (startWeight - currentWeight),
       weeks = (endDate.diff(startDate, 'days') / 7);
@@ -383,7 +353,7 @@ function getLatestWeight(weights) {
 }
 
 function getEarliestWeight(weights) {
-  // calculate earliest weight
+  // calculate latest weight
     var dates = [];
     for (var i in weights) {
       dates.push(moment(i, "DD-MMM-YYYY", true));
@@ -391,31 +361,4 @@ function getEarliestWeight(weights) {
     
     var min = moment.min(dates).format("DD-MMM-YYYY");
     return weights[min];
-}
-
-function getEarliestDate(weights) {
-  // calculate earliest date
-    var dates = [];
-    for (var i in weights) {
-      dates.push(moment(i, "DD-MMM-YYYY", true));
-    }
-    
-    var min = moment.min(dates);
-    return min;
-}
-
-function findStartDate(override, weights) {
-  if (!override) {
-    return getEarliestDate(weights);
-  } else {
-    return moment(override, "DD-MMM-YYYY");
-  }
-}
-
-function findStartWeight(override, weights) {
-  if (!override) {
-    return getEarliestWeight(weights);
-  } else {
-    return weights[moment(override, "DD-MMM-YYYY")];
-  }
 }

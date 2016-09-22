@@ -37,16 +37,16 @@
   	<section class="row">
   	  
   	  <article class="col-md-3">
-  	    <strong>Total Weight Loss:</strong> <span id="total-loss"></span> lbs
+  	    <strong>Total Weight Delta:</strong> <span id="weight-delta"></span> lbs
   	  </article>
   	  <article class="col-md-3">
-  	    <strong>Remaining to Lose:</strong> <span id="remaining"></span> lbs
+  	    <strong>Remaining to Goal:</strong> <span id="remaining"></span> lbs
   	  </article>
   	  <article class="col-md-3">
-  	    <strong>Original BMR:</strong> <span id="original-bmr-result"></span> calories
+  	    <strong>Original BMR:</strong> <span id="original-bmr"></span> calories
   	  </article>
   	  <article class="col-md-3">
-  	    <strong>Current BMR:</strong> <span id="current-bmr-result"></span> calories
+  	    <strong>Current BMR:</strong> <span id="current-bmr"></span> calories
   	  </article>
   	  
   	</section>
@@ -88,19 +88,19 @@
   	  <div class="row">
         <div class="col-md-4">
           <label for="start-date">Start Date</label>
-          <input type="date" class="form-control" id="start-date" value="2016-09-06">
+          <input type="date" class="form-control" id="start-date">
         </div>
         <div class="col-md-4">
           <label for="starting-weight">Starting Weight</label>
           <div class="input-group">
-            <input type="text" class="form-control" id="starting-weight" value="195.6">
+            <input type="text" class="form-control" id="start-weight">
             <div class="input-group-addon">lbs</div>
           </div>
         </div>
         <div class="col-md-4">
           <label for="goal-weight">Goal Weight</label>
           <div class="input-group">
-            <input type="text" class="form-control" id="goal-weight" value="175">
+            <input type="text" class="form-control" id="goal-weight">
             <div class="input-group-addon">lbs</div>
           </div>
         </div>
@@ -112,20 +112,20 @@
         <div class="col-md-3">
           <label for="gender">Gender</label>
           <select class="form-control" id="gender">
-            <option>Male</option>
-            <option>Female</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
           </select>
         </div>
         <div class="col-md-3">
           <label for="height">Height</label>
           <div class="input-group">
-            <input type="number" class="form-control" id="height" value="70">
+            <input type="number" class="form-control" id="height">
             <div class="input-group-addon">inches</div>
           </div>
         </div>
         <div class="col-md-3">
           <label for="age">Date of Birth</label>
-            <input type="date" class="form-control" id="dob" value="1986-02-13">
+            <input type="date" class="form-control" id="dob">
         </div>
         <div class="col-md-3">
           <label for="age">Age</label>
@@ -142,20 +142,20 @@
         <div class="col-md-3">
           <label for="activity-level">Activity Level</label>
           <select class="form-control" id="activity-level">
-            <option>Sedentary</option>
-            <option>Lightly Active</option>
-            <option selected="selected">Moderately Active</option>
-            <option>Very Active</option>
-            <option>Extremely Active</option>
+            <option value="Sedentary">Sedentary</option>
+            <option value="Lightly Active">Lightly Active</option>
+            <option value="Moderately Active">Moderately Active</option>
+            <option value="Very Active">Very Active</option>
+            <option value="Extremely Active">Extremely Active</option>
           </select>
         </div>
         <div class="col-md-3">
           <label for="loss-per-week">Weight Loss per Week (lbs)</label>
           <select class="form-control" id="loss-per-week">
-            <option>0</option>
-            <option>1</option>
-            <option>1.5</option>
-            <option selected="selected">2</option>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="1.5">1.5</option>
+            <option value="2">2</option>
           </select>
         </div>
       </div>
