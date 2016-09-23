@@ -11,7 +11,8 @@ $(function() {
         currentweight = getLatestWeight(weights),
         goalweight = parseInt(data.goalweight),
         activityfactor = data.activityfactor,
-        lbsperweek = parseInt(data.lbsperweek);
+        lbsperweek = parseInt(data.lbsperweek),
+        current7day = findCurrent7Day(startdate, weights);
     
     setDefaultValues(startdate, startweight, goalweight, gender, height, dob, age, activityfactor, lbsperweek);
     
@@ -22,8 +23,11 @@ $(function() {
     $('#daily-calorie-deficit').text(calculateDailyDeficit(startdate, moment(), startweight, currentweight));
     $('#weekly-calorie-deficit').text(calculateWeeklyDeficit(startdate, moment(), startweight, currentweight));
     $('#original-goal-date').text(calculateGoalDate(startdate, startweight, goalweight, lbsperweek));
-    $('#current-goal-date').text(calculateGoalDate(startdate, currentweight, goalweight, lbsperweek));
+    $('#current-goal-date').text(calculateGoalDate(startdate, current7day, goalweight, lbsperweek));
+    $('#current-weight').text(currentweight);
+    $('#seven-day-weight').text(current7day);
     
+    drawGraph(weights, height, goalweight);
     
     // console.log(dob);
     // console.log(gender);
@@ -107,29 +111,20 @@ function drawGraph(actualWeights, height, goalWeight) {
 					label: "Actual Weight",
 					type: 'line',
 					yAxisID: 'y-axis-0',
+					borderWidth: 1,
 					fill: false,
-					borderColor: "#46BFBD",
+					borderColor: "rgba(70, 191, 189, 0.2)",
           pointBackgroundColor: "#46BFBD",
           pointBorderWidth: 1,
           pointHoverRadius: 5,
 					data: weights,
         },
 				{
-					label: "3-Day Rolling Average",
-					fill: false,
-					type: 'line',
-					yAxisID: 'y-axis-0',
-					borderColor: "#F7464A",
-          pointBackgroundColor: "#F7464A",
-          pointBorderWidth: 1,
-          pointHoverRadius: 5,
-					data: rollAvg3,
-        },
-				{
 					label: "7-Day Rolling Average",
 					fill: false,
 					type: 'line',
 					yAxisID: 'y-axis-0',
+					borderWidth: 2,
 					borderColor: "#FDB45C",
           pointBackgroundColor: "#FDB45C",
           pointBorderWidth: 1,
@@ -150,7 +145,8 @@ function drawGraph(actualWeights, height, goalWeight) {
 					fill: false,
 					yAxisID: 'y-axis-0',
 					borderColor: "green",
-					pointRadius: 1,
+					borderWidth: 1,
+					pointRadius: 0,
 					data: goal,
 					borderDash : [10, 5]
         }
@@ -159,11 +155,11 @@ function drawGraph(actualWeights, height, goalWeight) {
 
 		var options = {
 			legend: {
-				display: true,
-				position: 'bottom'
+				display: false,
 			},
 			scales: {
-            yAxes: [{
+            yAxes: [
+              {
                 ticks: {
                     min: (goalWeight - 5),
                 },
@@ -173,8 +169,9 @@ function drawGraph(actualWeights, height, goalWeight) {
                   display: 'true',
                   labelString: 'lbs'
                 }
-            },
-            {
+                
+              },
+              {
                 ticks: {
                     min: (Math.floor(Math.min.apply(null, bmi) - 1)),
                 },
@@ -187,14 +184,20 @@ function drawGraph(actualWeights, height, goalWeight) {
                   display: 'true',
                   labelString: 'BMI'
                 }
-            }]
+              }
+            ],
+            xAxes: [
+              {
+                  display: false
+              }
+            ],
         },
         tooltips: {
           mode: 'x-axis'
         }
 		}
 
-		var ctx = document.getElementById("myChart");
+		var ctx = document.getElementById("analysis-chart");
 		var myLineChart = new Chart(ctx, {
 			type: 'bar',
 			data: data,
@@ -418,4 +421,19 @@ function findStartWeight(override, weights) {
   } else {
     return weights[moment(override, "DD-MMM-YYYY")];
   }
+}
+
+function findCurrent7Day(startdate, weights) {
+  var today = moment(),
+			daysDiff = (today.diff(startdate, 'days'));
+			
+  // calculate date labels
+	var labels = createDateArray(startdate, daysDiff);
+
+  // align weights to dates
+  weights = alignWeights2Dates(labels, weights);
+  
+  var seven = calculate7DayAvg(weights);
+  console.log(weights);
+  return seven[seven.length - 1];
 }
