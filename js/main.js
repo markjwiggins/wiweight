@@ -21,21 +21,13 @@ $(function() {
     $('#original-bmr').text(calculateBMR(gender, height, startweight, age, activityfactor));
     $('#current-bmr').text(calculateBMR(gender, height, currentweight, age, activityfactor));
     $('#daily-calorie-deficit').text(calculateDailyDeficit(startdate, moment(), startweight, currentweight));
-    $('#weekly-calorie-deficit').text(calculateWeeklyDeficit(startdate, moment(), startweight, currentweight));
+    $('#current-bmi').text(calculateBMI(currentweight, height));
     $('#original-goal-date').text(calculateGoalDate(startdate, startweight, goalweight, lbsperweek));
     $('#current-goal-date').text(calculateGoalDate(startdate, current7day, goalweight, lbsperweek));
     $('#current-weight').text(currentweight);
     $('#seven-day-weight').text(current7day);
     
     drawGraph(weights, height, goalweight);
-    
-    // console.log(dob);
-    // console.log(gender);
-    // console.log(height);
-    // console.log(startdate);
-    // console.log(goalweight);
-    // console.log(activityfactor);
-    // console.log(weights);
 
   });
 });
