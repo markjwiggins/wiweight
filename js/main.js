@@ -5,13 +5,13 @@ $(function() {
         dob = moment(data.dob, "DD-MMM-YYYY"),
         age = calculateAge(dob),
         gender = data.gender,
-        height = parseInt(data.height),
+        height = parseFloat(data.height),
         startdate = findStartDate(data.startdate, weights),
         startweight = findStartWeight(data.startdate, weights),
         currentweight = getLatestWeight(weights),
-        goalweight = parseInt(data.goalweight),
+        goalweight = parseFloat(data.goalweight),
         activityfactor = data.activityfactor,
-        lbsperweek = parseInt(data.lbsperweek),
+        lbsperweek = parseFloat(data.lbsperweek),
         current7day = findCurrent7Day(startdate, weights);
     
     setDefaultValues(startdate, startweight, goalweight, gender, height, dob, age, activityfactor, lbsperweek);
@@ -231,7 +231,7 @@ function recalculate(weights, goal) {
 }
 
 function kg2lbs(kg) {
-  return parseInt(kg * 2.2046226218).toFixed(1);
+  return parseFloat(kg * 2.2046226218).toFixed(1);
 }
 
 function calculateAge(dob) {
@@ -311,16 +311,21 @@ function calculate7DayAvg(weights) {
   var rollAvg7 = [];
 		// calculate ten day rolling
 	for (var i = 0; i < weights.length; i++) {
-		if (i > 8) {
-			rollAvg7.push(((parseInt(weights[i]) +
-				parseInt(weights[i - 1]) +
-				parseInt(weights[i - 2]) +
-				parseInt(weights[i - 3]) +
-				parseInt(weights[i - 4]) +
-				parseInt(weights[i - 5]) +
-				parseInt(weights[i - 6])) / 7).toFixed(1));
+		if (i >= 6) {
+			rollAvg7.push(((parseFloat(weights[i]) +
+				parseFloat(weights[i - 1]) +
+				parseFloat(weights[i - 2]) +
+				parseFloat(weights[i - 3]) +
+				parseFloat(weights[i - 4]) +
+				parseFloat(weights[i - 5]) +
+				parseFloat(weights[i - 6])) / 7).toFixed(1));
 		} else {
-			rollAvg7.push(weights[i]);
+		  var count = 0;
+		  
+		  for (var j = 0; j < i + 1; j++) {
+		    count = count + parseFloat(weights[i - j]);
+		  }
+			rollAvg7.push(count / (i + 1)).toFixed(1);
 		}
 	}
 		
@@ -333,7 +338,7 @@ function calculate3DayAvg(weights) {
   
 	for (var i = 0; i < weights.length; i++) {
 		if (i > 1) {
-			rollAvg3.push(((parseInt(weights[i]) + parseInt(weights[i - 1]) + parseInt(weights[i - 2])) / 3).toFixed(1));
+			rollAvg3.push(((parseFloat(weights[i]) + parseFloat(weights[i - 1]) + parseFloat(weights[i - 2])) / 3).toFixed(1));
 		} else {
 			rollAvg3.push(weights[i]);
 		}
