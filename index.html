@@ -7,10 +7,10 @@
 	<title>wiWeight</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400" rel="stylesheet">
-  
-  <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
-  <link rel="stylesheet" type="text/css" href="css/styles.css">
+	<link href="https://fonts.googleapis.com/css?family=Lato:100,300,400" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="css/styles.css">
 
 	<script src="js/charts.js"></script>
 	<script src="js/moment.js"></script>
@@ -22,156 +22,178 @@
         <![endif]-->
 
 
-  <nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <!-- Brand and toggle get grouped for better mobile display -->
-      <div class="navbar-header">
-        <a class="navbar-brand" href="#">wiWeight</a>
-      </div>
-    </div><!-- /.container-fluid -->
-  </nav>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">wiWeight</a>
+			</div>
+		</div>
+		<!-- /.container-fluid -->
+	</nav>
 
 	<main class="">
-	  <h2>Analysis</h2>
-	  <hr />
-  	<section class="row">
-  	  
-  	  <article class="col-md-3">
-  	    <strong>Total Weight Delta:</strong> <span id="weight-delta"></span> lbs
-  	  </article>
-  	  <article class="col-md-3">
-  	    <strong>Remaining to Goal:</strong> <span id="remaining"></span> lbs
-  	  </article>
-  	  <article class="col-md-3">
-  	    <strong>Original BMR:</strong> <span id="original-bmr"></span> calories
-  	  </article>
-  	  <article class="col-md-3">
-  	    <strong>Current BMR:</strong> <span id="current-bmr"></span> calories
-  	  </article>
-  	  
-  	</section>
-  	<br />
-  	<section class="row">
-  	  
-  	  <article class="col-md-3">
-  	    <strong>Daily Calorie Deficit:</strong> <span id="daily-calorie-deficit"></span> calories
-  	  </article>
-  	  
-  	  <article class="col-md-3">
-  	    <strong>Current BMI:</strong> <span id="current-bmi"></span>
-  	  </article>
-  	  
-  	 <article class="col-md-3 text-info">
-  	    <strong>Current Weight: <span id="current-weight"></span> lbs</strong>
-  	  </article>
-  	  
-  	 <article class="col-md-3 text-info">
-  	    <strong>7-Day Average Weight: <span id="seven-day-weight"></span> lbs</strong>
-  	  </article>
-  	  
-  	</section>
-  	
-  	<hr />
-  	<section class="row">
-  	  
-  	  <article class="col-md-6">
-  	    <strong>Original Goal Date:</strong> <h4><span id="original-goal-date" class="label label-primary"></span></h4>
-  	  </article>
-  	  <article class="col-md-6">
-  	    <strong>Current Goal Date:</strong> <h4><span id="current-goal-date" class="label label-success"></span></h4>
-  	  </article>
-  	  
-  	</section>
-  	
-  	<hr />
-	  <section class="row">
-  	  <article class="col-md-12">
-    		<canvas id="analysis-chart" height="100px"></canvas>
-    	</article>
-  	</section>
-  	
-  	<h3>Details</h3>
-  	<hr />
-  	<form class="">
-  	  <div class="row">
-        <div class="col-md-4">
-          <label for="start-date">Start Date</label>
-          <input type="date" class="form-control" id="start-date">
-        </div>
-        <div class="col-md-4">
-          <label for="starting-weight">Starting Weight</label>
-          <div class="input-group">
-            <input type="text" class="form-control" id="start-weight">
-            <div class="input-group-addon">lbs</div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <label for="goal-weight">Goal Weight</label>
-          <div class="input-group">
-            <input type="text" class="form-control" id="goal-weight">
-            <div class="input-group-addon">lbs</div>
-          </div>
-        </div>
-      </div>
-      
-      <br />
-      
-      <div class="row">
-        <div class="col-md-3">
-          <label for="gender">Gender</label>
-          <select class="form-control" id="gender">
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label for="height">Height</label>
-          <div class="input-group">
-            <input type="number" class="form-control" id="height">
-            <div class="input-group-addon">inches</div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <label for="age">Date of Birth</label>
-            <input type="date" class="form-control" id="dob">
-        </div>
-        <div class="col-md-3">
-          <label for="age">Age</label>
-          <div class="input-group">
-            <input type="number" disabled="disabled" class="form-control disabled" id="age">
-            <div class="input-group-addon">years</div>
-          </div>
-        </div>
-      </div>
-      
-      <br />
-      
-      <div class="row">
-        <div class="col-md-3">
-          <label for="activity-level">Activity Level</label>
-          <select class="form-control" id="activity-level">
-            <option value="Sedentary">Sedentary</option>
-            <option value="Lightly Active">Lightly Active</option>
-            <option value="Moderately Active">Moderately Active</option>
-            <option value="Very Active">Very Active</option>
-            <option value="Extremely Active">Extremely Active</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label for="loss-per-week">Weight Loss per Week (lbs)</label>
-          <select class="form-control" id="loss-per-week">
-            <option value="0">0</option>
-            <option value="1">1</option>
-            <option value="1.5">1.5</option>
-            <option value="2">2</option>
-          </select>
-        </div>
-      </div>
+		<h2>Analysis</h2>
+		<hr />
+		<section class="row">
 
-      <br />
-      <button type="submit" id="recalculate" class="btn btn-default">Recalculate</button>
-    </form>
-  	<hr />
+			<article class="col-md-3">
+				<strong>Total Weight Delta:</strong> <span id="weight-delta"></span> lbs
+			</article>
+			<article class="col-md-3">
+				<strong>Remaining to Goal:</strong> <span id="remaining"></span> lbs
+			</article>
+			<article class="col-md-3">
+				<strong>Original BMR:</strong> <span id="original-bmr"></span> calories
+			</article>
+			<article class="col-md-3">
+				<strong>Current BMR:</strong> <span id="current-bmr"></span> calories
+			</article>
+
+		</section>
+		<br />
+		<section class="row">
+
+			<article class="col-md-3">
+				<strong>Daily Calorie Deficit:</strong> <span id="daily-calorie-deficit"></span> calories
+			</article>
+
+			<article class="col-md-3">
+				<strong>Weight Change per Week:</strong> <span id="change-per-week"></span> lbs
+			</article>
+
+		</section>
+
+		<br />
+		<section class="row">
+
+			<article class="col-md-4 text-info row">
+				<h2 class="text-light col-md-8">Current Weight:</h2>
+				<h2 class="col-md-4"><span id="current-weight"></span> lbs</h2>
+			</article>
+
+			<article class="col-md-4 text-info row">
+				<h2 class="text-light col-md-8">Smoothed Avg Weight:</h2>
+				<h2 class="col-md-4"><span id="seven-day-weight"></span> lbs</h2>
+			</article>
+
+			<article class="col-md-4 text-info row">
+				<h2 class="text-light col-md-8">Current BMI:</h2>
+				<h2 class="col-md-4"><span id="current-bmi"></span> lbs</h2>
+			</article>
+
+		</section>
+
+		<hr />
+		<section class="row">
+
+			<article class="col-md-6">
+				<strong>Original Goal Date:</strong>
+				<h4><span id="original-goal-date" class="label label-primary"></span></h4>
+			</article>
+			<article class="col-md-6">
+				<strong>Current Goal Date *:</strong>
+				<h4><span id="current-goal-date" class="label label-success"></span></h4>
+			</article>
+
+		</section>
+
+		<section class="row">
+
+			<article class="col-md-12 text-right">
+				<small>* Indicates calculation based on smoothed average weight</small>
+			</article>
+
+		</section>
+		<hr />
+		<section class="row">
+			<article class="col-md-12">
+				<canvas id="analysis-chart" height="100px"></canvas>
+			</article>
+		</section>
+
+		<h3>Details</h3>
+		<hr />
+		<form class="">
+			<div class="row">
+				<div class="col-md-4">
+					<label for="start-date">Start Date</label>
+					<input type="date" class="form-control" id="start-date">
+				</div>
+				<div class="col-md-4">
+					<label for="starting-weight">Starting Weight</label>
+					<div class="input-group">
+						<input type="text" class="form-control" id="start-weight">
+						<div class="input-group-addon">lbs</div>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<label for="goal-weight">Goal Weight</label>
+					<div class="input-group">
+						<input type="text" class="form-control" id="goal-weight">
+						<div class="input-group-addon">lbs</div>
+					</div>
+				</div>
+			</div>
+
+			<br />
+
+			<div class="row">
+				<div class="col-md-3">
+					<label for="gender">Gender</label>
+					<select class="form-control" id="gender">
+						<option value="Male">Male</option>
+						<option value="Female">Female</option>
+					</select>
+				</div>
+				<div class="col-md-3">
+					<label for="height">Height</label>
+					<div class="input-group">
+						<input type="number" class="form-control" id="height">
+						<div class="input-group-addon">inches</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<label for="age">Date of Birth</label>
+					<input type="date" class="form-control" id="dob">
+				</div>
+				<div class="col-md-3">
+					<label for="age">Age</label>
+					<div class="input-group">
+						<input type="number" disabled="disabled" class="form-control disabled" id="age">
+						<div class="input-group-addon">years</div>
+					</div>
+				</div>
+			</div>
+
+			<br />
+
+			<div class="row">
+				<div class="col-md-3">
+					<label for="activity-level">Activity Level</label>
+					<select class="form-control" id="activity-level">
+						<option value="Sedentary">Sedentary</option>
+						<option value="Lightly Active">Lightly Active</option>
+						<option value="Moderately Active">Moderately Active</option>
+						<option value="Very Active">Very Active</option>
+						<option value="Extremely Active">Extremely Active</option>
+					</select>
+				</div>
+				<div class="col-md-3">
+					<label for="loss-per-week">Weight Loss per Week (lbs)</label>
+					<select class="form-control" id="loss-per-week">
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="1.5">1.5</option>
+						<option value="2">2</option>
+					</select>
+				</div>
+			</div>
+
+			<br />
+			<button type="submit" id="recalculate" class="btn btn-default">Recalculate</button>
+		</form>
+		<hr />
 	</main>
 
 	<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>

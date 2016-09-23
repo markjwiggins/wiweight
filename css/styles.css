@@ -1,19 +1,23 @@
 body {
-  font-family: 'Ubuntu', 'Verdana', sans-serif;
-  font-weight: 300 !important;
+	font-family: 'Lato', 'Verdana', sans-serif;
+	font-weight: 300 !important;
 }
 
-canvas{
-        width: 100% !important;
-        height: 10% !important;
-        display: block;
-    }
-    
+.text-light {
+	font-weight: 100;
+}
+
+canvas {
+	width: 100% !important;
+	height: 5% !important;
+	display: block;
+}
+
 @media screen only and (max-width: 768px) {
-  canvas {
-    max-width: 300px;
-    min-height: 400px;
-    margin: 0 auto;
-    display: block;
-  }
+	canvas {
+		max-width: 300px;
+		min-height: 400px;
+		margin: 0 auto;
+		display: block;
+	}
 }
