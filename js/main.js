@@ -8,93 +8,19 @@ $(function () {
 			height = parseFloat(data.height),
 			startdate = findStartDate(data.startdate, weights),
 			startweight = findStartWeight(data.startdate, weights),
-			currentweight = getLatestWeight(weights),
 			goalweight = parseFloat(data.goalweight),
 			activityfactor = data.activityfactor,
 			lbsperweek = parseFloat(data.lbsperweek),
-			current7day = findCurrent7Day(startdate, weights),
-			bmi = calculateBMI(currentweight, height);
+			days2goal = calculateDaysToGoal(startweight, goalweight, (lbsperweek * 500));
 
 		setDefaultValues(startdate, startweight, goalweight, gender, height, dob, age, activityfactor, lbsperweek);
 
-		$('#weight-delta').text(calculateTotalWeightDelta(startdate, weights));
-		$('#remaining').text(calculateRemainingWeight(weights, goalweight));
-		$('#original-bmr').text(calculateBMR(gender, height, startweight, age, activityfactor));
-		$('#current-bmr').text(calculateBMR(gender, height, currentweight, age, activityfactor));
-		$('#daily-calorie-deficit').text(calculateDailyDeficit(startdate, moment(), startweight, currentweight));
-		$('#current-bmi').text(bmi);
-		$('#original-goal-date').text(calculateGoalDate(startdate, startweight, goalweight, lbsperweek));
-		$('#current-goal-date').text(calculateGoalDate(startdate, current7day, goalweight, lbsperweek));
-		$('#current-weight').text(currentweight);
-		$('#seven-day-weight').text(current7day);
-		$('#change-per-week').text(calculateWeightChangePerWeek(startdate, startweight, currentweight));
+    calculate(weights, age, gender, height, activityfactor, startdate, startweight, goalweight, lbsperweek);
 
-		// evaluate and color based on status
-		if (currentweight > (goalweight + 5)) {
-			$('#current-weight').addClass('text-danger');
-		}
-		if (currentweight > goalweight && currentweight <= (goalweight + 5)) {
-			$('#current-weight').addClass('text-warning');
-		}
-		if (currentweight <= goalweight) {
-			$('#current-weight').addClass('text-success');
-		}
-
-		if (current7day > goalweight) {
-			$('#seven-day-weight').addClass('text-danger');
-		}
-		if (current7day > goalweight && current7day <= (goalweight + 5)) {
-			$('#current-weight').addClass('text-warning');
-		}
-		if (current7day <= goalweight) {
-			$('#seven-day-weight').addClass('text-success');
-		}
-
-		if (bmi < 18.5) {
-			$('#current-bmi').addClass('text-error');
-		}
-		if (bmi >= 18.5 && bmi < 25) {
-			$('#current-bmi').addClass('text-success');
-		}
-		if (bmi >= 25 && bmi < 30) {
-			$('#current-bmi').addClass('text-warning');
-		}
-		if (bmi >= 30) {
-			$('#current-bmi').addClass('text-error');
-		}
-
-		drawGraph(weights, height, goalweight);
+		drawGraph(weights, height, goalweight, days2goal);
 
 	});
 });
-
-function calculateWeightChangePerWeek(startdate, startweight, currentweight) {
-	var today = moment(),
-		weeks = today.diff(startdate, 'days') / 7;
-	return ((startweight - currentweight) / weeks).toFixed(1);
-}
-
-function calculateTotalWeightDelta(startdate, weights) {
-	var startweight = weights[startdate.format("DD-MMM-YYYY")],
-		endWeight = getLatestWeight(weights);
-
-	return (endWeight - startweight).toFixed(1);
-}
-
-function calculateRemainingWeight(weights, goalweight) {
-	var endweight = getLatestWeight(weights);
-	return (goalweight - endweight).toFixed(1);
-}
-
-function calculateDaysToGoal(startweight, goalweight, lbsperweek) {
-	return (((startweight - goalweight) / lbsperweek) * 7);
-}
-
-function calculateGoalDate(startdate, startweight, goalweight, lbsperweek) {
-	var daystogoal = calculateDaysToGoal(startweight, goalweight, lbsperweek),
-		date = startdate.clone().add(daystogoal, 'days').format('DD-MMM-YYYY');
-	return date;
-}
 
 function setDefaultValues(startdate, startweight, goalweight, gender, height, dob, age, activityfactor, lbsperweek) {
 	$('#start-date').val(startdate.format('YYYY-MM-DD'));
@@ -108,13 +34,15 @@ function setDefaultValues(startdate, startweight, goalweight, gender, height, do
 	$('#loss-per-week option[value="' + lbsperweek + '"]').attr('selected', 'selected');
 }
 
-function drawGraph(actualWeights, height, goalWeight) {
+function drawGraph(actualWeights, height, goalWeight, days2goal) {
 	var startDate = moment($('#start-date').val()),
+	    startweight = findStartWeight(false, actualWeights),
 		today = moment(),
 		daysDiff = (today.diff(startDate, 'days'));
 
 	var bmi = [],
-		goal = [];
+		goal = [],
+		forecast = [];
 
 	// calculate date labels
 	var labels = createDateArray(startDate, daysDiff);
@@ -122,19 +50,26 @@ function drawGraph(actualWeights, height, goalWeight) {
 	// align weights to dates
 	var weights = alignWeights2Dates(labels, actualWeights);
 
-	// calculate three day rolling
-	var rollAvg3 = calculate3DayAvg(weights);
-
 	// calculate ten day rolling
-	var rollAvg7 = calculate7DayAvg(weights);
+	var smoothAvg = calculateSmoothAvg(weights);
 
 	// set goal weight line
 	for (var i = 0; i < weights.length; i++) {
 		goal.push(goalWeight);
 	}
+	
+	// set forecast weight line
+	var subtract = ((startweight - goalWeight) / days2goal);
+	for (i = 0; i < weights.length; i++) {
+	  if (i === 0) {
+	    forecast.push(startweight)
+	  } else {
+  		forecast.push((forecast[i - 1] - subtract).toFixed(1));
+	  }
+	}
 
 	// calculate BMI
-	for (var i = 0; i < weights.length; i++) {
+	for (i = 0; i < weights.length; i++) {
 		bmi.push(calculateBMI(weights[i], height));
 	}
 
@@ -163,7 +98,20 @@ function drawGraph(actualWeights, height, goalWeight) {
 				pointBackgroundColor: "#FDB45C",
 				pointBorderWidth: 1,
 				pointHoverRadius: 5,
-				data: rollAvg7,
+				data: smoothAvg,
+        },
+      {
+				label: "Goal Trend",
+				fill: false,
+				type: 'line',
+				yAxisID: 'y-axis-0',
+				borderWidth: 2,
+				borderColor: "rgba(0, 255, 0, 0.5)",
+				pointBackgroundColor: "#FDB45C",
+				pointBorderWidth: 0,
+				pointRadius: 0,
+				borderDash: [10, 5],
+				data: forecast,
         },
 			{
 				label: "BMI",
@@ -178,7 +126,7 @@ function drawGraph(actualWeights, height, goalWeight) {
 				type: 'line',
 				fill: false,
 				yAxisID: 'y-axis-0',
-				borderColor: "green",
+				borderColor: "rgba(0, 255, 0, 0.5)",
 				borderWidth: 1,
 				pointRadius: 0,
 				data: goal,
@@ -240,45 +188,60 @@ function drawGraph(actualWeights, height, goalWeight) {
 
 }
 
-function recalculate(weights, goal) {
-	var gender = $('#gender').val(),
-		height = $('#height').val(),
-		age = $('#age').val(),
-		activityLevel = $('#activity-level').val(),
-		currentWeight = getLatestWeight(weights),
-		startingWeight = getEarliestWeight(weights),
-		goalWeight = goal,
-		startDate = moment($('#start-date').val()),
-		perWeek = $('#loss-per-week').val();
+function calculate(weights, age, gender, height, activityfactor, startdate, startweight, goalweight, lbsperweek) {
+  
+  var currentweight = getLatestWeight(weights),
+			currentSmoothAvg = findCurrentSmoothAvg(startdate, weights),
+			bmi = calculateBMI(currentweight, height),
+			caloriedeficit = calculateDailyDeficit(startdate, moment(), weights);
+  
+		$('#weight-delta').text(calculateTotalWeightDelta(startdate, weights));
+		$('#remaining').text(calculateRemainingWeight(weights, goalweight));
+		$('#original-tdee').text(calculateTDEE(gender, height, startweight, age, activityfactor));
+		$('#current-tdee').text(calculateTDEE(gender, height, currentweight, age, activityfactor));
+		$('#daily-calorie-deficit').text(caloriedeficit);
+		$('#current-bmi').text(bmi);
+		$('#original-goal-date').text(calculateGoalDate(startdate, startweight, goalweight, (lbsperweek * 500)));
+		$('#current-goal-date').text(calculateGoalDate(moment(), currentSmoothAvg, goalweight, caloriedeficit));
+		$('#current-weight').text(currentweight);
+		$('#smooth-avg-weight').text(currentSmoothAvg);
+		$('#change-per-week').text(calculateWeightChangePerWeek(startdate, startweight, currentweight));
 
-	$('#original-bmr-result').text(calculateBMR(gender, height, startingWeight, age, activityLevel));
-	$('#current-bmr-result').text(calculateBMR(gender, height, currentWeight, age, activityLevel));
+		// evaluate and color based on status
+		if (currentweight > (goalweight + 5)) {
+			$('#current-weight').addClass('text-danger');
+		}
+		if (currentweight > goalweight && currentweight <= (goalweight + 5)) {
+			$('#current-weight').addClass('text-warning');
+		}
+		if (currentweight <= goalweight) {
+			$('#current-weight').addClass('text-success');
+		}
 
-	$('#total-loss').text((startingWeight - currentWeight).toFixed(1));
+		if (currentSmoothAvg > goalweight) {
+			$('#smooth-avg-weight').addClass('text-danger');
+		}
+		if (currentSmoothAvg > goalweight && currentSmoothAvg <= (goalweight + 5)) {
+			$('#smooth-avg-weight').addClass('text-warning');
+		}
+		if (currentSmoothAvg <= goalweight) {
+			$('#smooth-avg-weight').addClass('text-success');
+		}
 
-	$('#remaining').text((currentWeight - goalWeight).toFixed(1));
-
-	var originalDaysToGoal = (((startingWeight - goalWeight) / perWeek) * 7),
-
-		currentDaysToGoal = (((currentWeight - goalWeight) / perWeek) * 7);
-
-	$('#original-goal-date').text(startDate.clone().add(originalDaysToGoal, 'days').format('DD-MMM-YYYY'));
-
-	$('#current-goal-date').text(startDate.clone().add(currentDaysToGoal, 'days').format('DD-MMM-YYYY'));
-
-	$('#daily-calorie-deficit').text(calculateDailyDeficit(startDate, moment().format('DD-MM-YYYY'), startingWeight, currentWeight));
-
-	$('#weekly-calorie-deficit').text(calculateWeeklyDeficit(startDate, moment().format('DD-MM-YYYY'), startingWeight, currentWeight));
+		if (bmi < 18.5) {
+			$('#current-bmi').addClass('text-error');
+		}
+		if (bmi >= 18.5 && bmi < 25) {
+			$('#current-bmi').addClass('text-success');
+		}
+		if (bmi >= 25 && bmi < 30) {
+			$('#current-bmi').addClass('text-warning');
+		}
+		if (bmi >= 30) {
+			$('#current-bmi').addClass('text-error');
+		}
 
 	window.scrollTo(0, 0);
-}
-
-function kg2lbs(kg) {
-	return parseFloat(kg * 2.2046226218).toFixed(1);
-}
-
-function calculateAge(dob) {
-	return moment().diff(moment(dob), 'years');
 }
 
 function alignWeights2Dates(dates, actualWeights) {
@@ -309,170 +272,4 @@ function createDateArray(start, days) {
 	}
 
 	return dates;
-}
-
-function calculateBMI(weight, height) {
-	return (((weight / (height * height)) * 703).toFixed(1));
-}
-
-function calculateBMR(gender, height, weight, age, activity) {
-	var activityFactor = getActivityFactor(activity),
-		bmr = 0;
-
-	// calculate bmr
-	switch (gender) {
-	case 'Male':
-		bmr = ((66 + (6.23 * weight) + (12.7 * height) - (6.8 * age)) * activityFactor);
-		break;
-
-	case 'Female':
-		bmr = ((655 + (4.35 * weight) + (4.7 * height) - (4.7 * age)) * activityFactor);
-		break;
-
-	}
-
-	return bmr.toFixed(0);
-}
-
-function calculateDailyDeficit(startDate, endDate, startWeight, currentWeight) {
-
-	var loss = (startWeight - currentWeight),
-		weeks = (endDate.diff(startDate, 'days') / 7);
-
-	var deficit = (loss / weeks) * 500;
-
-	return deficit.toFixed(0);
-}
-
-function calculateWeeklyDeficit(startDate, endDate, startWeight, currentWeight) {
-	var daily = calculateDailyDeficit(startDate, endDate, startWeight, currentWeight);
-
-	return (daily * 7).toFixed(0);
-}
-
-function calculate7DayAvg(weights) {
-	var rollAvg7 = [];
-	// calculate ten day rolling
-	for (var i = 0; i < weights.length; i++) {
-		if (i >= 6) {
-			rollAvg7.push(((parseFloat(weights[i]) +
-				parseFloat(weights[i - 1]) +
-				parseFloat(weights[i - 2]) +
-				parseFloat(weights[i - 3]) +
-				parseFloat(weights[i - 4]) +
-				parseFloat(weights[i - 5]) +
-				parseFloat(weights[i - 6])) / 7).toFixed(1));
-		} else {
-			var count = 0;
-
-			for (var j = 0; j < i + 1; j++) {
-				count = count + parseFloat(weights[i - j]);
-			}
-			rollAvg7.push(count / (i + 1)).toFixed(1);
-		}
-	}
-
-	return rollAvg7;
-
-}
-
-function calculate3DayAvg(weights) {
-	var rollAvg3 = [];
-
-	for (var i = 0; i < weights.length; i++) {
-		if (i > 1) {
-			rollAvg3.push(((parseFloat(weights[i]) + parseFloat(weights[i - 1]) + parseFloat(weights[i - 2])) / 3).toFixed(1));
-		} else {
-			rollAvg3.push(weights[i]);
-		}
-	}
-
-	return rollAvg3;
-}
-
-function getActivityFactor(activityType) {
-	var factor = 0;
-
-	switch (activityType) {
-	case 'Sedentary':
-		factor = 1.2;
-		break;
-	case 'Lightly Active':
-		factor = 1.375;
-		break;
-	case 'Moderately Active':
-		factor = 1.55;
-		break;
-	case 'Very Active':
-		factor = 1.725;
-		break;
-	case 'Extremely Active':
-		factor = 1.9;
-		break;
-	}
-
-	return factor;
-}
-
-function getLatestWeight(weights) {
-	// calculate latest weight
-	var dates = [];
-	for (var i in weights) {
-		dates.push(moment(i, "DD-MMM-YYYY", true));
-	}
-
-	var max = moment.max(dates).format("DD-MMM-YYYY");
-	return weights[max];
-}
-
-function getEarliestWeight(weights) {
-	// calculate earliest weight
-	var dates = [];
-	for (var i in weights) {
-		dates.push(moment(i, "DD-MMM-YYYY", true));
-	}
-
-	var min = moment.min(dates).format("DD-MMM-YYYY");
-	return weights[min];
-}
-
-function getEarliestDate(weights) {
-	// calculate earliest date
-	var dates = [];
-	for (var i in weights) {
-		dates.push(moment(i, "DD-MMM-YYYY", true));
-	}
-
-	var min = moment.min(dates);
-	return min;
-}
-
-function findStartDate(override, weights) {
-	if (!override) {
-		return getEarliestDate(weights);
-	} else {
-		return moment(override, "DD-MMM-YYYY");
-	}
-}
-
-function findStartWeight(override, weights) {
-	if (!override) {
-		return getEarliestWeight(weights);
-	} else {
-		return weights[moment(override, "DD-MMM-YYYY")];
-	}
-}
-
-function findCurrent7Day(startdate, weights) {
-	var today = moment(),
-		daysDiff = (today.diff(startdate, 'days'));
-
-	// calculate date labels
-	var labels = createDateArray(startdate, daysDiff);
-
-	// align weights to dates
-	weights = alignWeights2Dates(labels, weights);
-
-	var seven = calculate7DayAvg(weights);
-	return seven[seven.length - 1];
 }
