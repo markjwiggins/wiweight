@@ -114,23 +114,24 @@
 
 		<h3>Details</h3>
 		<hr />
-		<form class="">
+		<form class="" id="details">
+		  
 			<div class="row">
 				<div class="col-md-4">
 					<label for="start-date">Start Date</label>
-					<input type="date" class="form-control" id="start-date">
+					<input type="date" class="form-control" name="start-date">
 				</div>
 				<div class="col-md-4">
 					<label for="starting-weight">Starting Weight</label>
 					<div class="input-group">
-						<input type="text" class="form-control" id="start-weight">
+						<input type="text" class="form-control" name="start-weight">
 						<div class="input-group-addon">lbs</div>
 					</div>
 				</div>
 				<div class="col-md-4">
 					<label for="goal-weight">Goal Weight</label>
 					<div class="input-group">
-						<input type="text" class="form-control" id="goal-weight">
+						<input type="text" class="form-control" name="goal-weight">
 						<div class="input-group-addon">lbs</div>
 					</div>
 				</div>
@@ -141,7 +142,7 @@
 			<div class="row">
 				<div class="col-md-3">
 					<label for="gender">Gender</label>
-					<select class="form-control" id="gender">
+					<select class="form-control" name="gender">
 						<option value="Male">Male</option>
 						<option value="Female">Female</option>
 					</select>
@@ -149,18 +150,18 @@
 				<div class="col-md-3">
 					<label for="height">Height</label>
 					<div class="input-group">
-						<input type="number" class="form-control" id="height">
+						<input type="number" class="form-control" name="height">
 						<div class="input-group-addon">inches</div>
 					</div>
 				</div>
 				<div class="col-md-3">
 					<label for="age">Date of Birth</label>
-					<input type="date" class="form-control" id="dob">
+					<input type="date" class="form-control" name="dob">
 				</div>
 				<div class="col-md-3">
 					<label for="age">Age</label>
 					<div class="input-group">
-						<input type="number" disabled="disabled" class="form-control disabled" id="age">
+						<input type="number" disabled="disabled" class="form-control disabled" name="age">
 						<div class="input-group-addon">years</div>
 					</div>
 				</div>
@@ -171,7 +172,7 @@
 			<div class="row">
 				<div class="col-md-3">
 					<label for="activity-level">Activity Level</label>
-					<select class="form-control" id="activity-level">
+					<select class="form-control" name="activity-level">
 						<option value="Sedentary">Sedentary</option>
 						<option value="Lightly Active">Lightly Active</option>
 						<option value="Moderately Active">Moderately Active</option>
@@ -181,7 +182,7 @@
 				</div>
 				<div class="col-md-3">
 					<label for="loss-per-week">Weight Loss per Week (lbs)</label>
-					<select class="form-control" id="loss-per-week">
+					<select class="form-control" name="loss-per-week">
 						<option value="0">0</option>
 						<option value="1">1</option>
 						<option value="1.5">1.5</option>

@@ -1,6 +1,6 @@
 $(function () {
 	$.getJSON("data.json", function (data) {
-
+  
 		var weights = data.weights,
 			dob = moment(data.dob, "DD-MMM-YYYY"),
 			age = calculateAge(dob),
@@ -17,28 +17,43 @@ $(function () {
 
     calculate(weights, age, gender, height, activityfactor, startdate, startweight, goalweight, lbsperweek);
 
-		drawGraph(weights, height, goalweight, days2goal);
+		drawGraph(startdate, weights, height, goalweight, days2goal);
 
+	});
+	
+	$('#recalculate').click(function() {
+	  var details = $('#details').serializeArray();
+    $.ajax({
+      type: "POST",
+      url: "test.php",
+      datatype: "html",
+      cache: false,
+      data:  details,
+      success: function(data) {
+        //console.log($.parseJSON(data));
+        console.log(data);
+      }
+    });
+    return false;
 	});
 });
 
 function setDefaultValues(startdate, startweight, goalweight, gender, height, dob, age, activityfactor, lbsperweek) {
-	$('#start-date').val(startdate.format('YYYY-MM-DD'));
-	$('#start-weight').val(startweight);
-	$('#goal-weight').val(goalweight);
-	$('#gender option[value=' + gender + ']').attr('selected', 'selected');
-	$('#height').val(height);
-	$('#dob').val(dob.format('YYYY-MM-DD'));
-	$('#age').val(age);
-	$('#activity-level option[value="' + activityfactor + '"]').attr('selected', 'selected');
-	$('#loss-per-week option[value="' + lbsperweek + '"]').attr('selected', 'selected');
+	$('[name=start-date]').val(startdate.format('YYYY-MM-DD'));
+	$('[name=start-weight]').val(startweight);
+	$('[name=goal-weight]').val(goalweight);
+	$('[name=gender] option[value=' + gender + ']').attr('selected', 'selected');
+	$('[name=height]').val(height);
+	$('[name=dob]').val(dob.format('YYYY-MM-DD'));
+	$('[name=age]').val(age);
+	$('[name=activity-level] option[value="' + activityfactor + '"]').attr('selected', 'selected');
+	$('[name=loss-per-week] option[value="' + lbsperweek + '"]').attr('selected', 'selected');
 }
 
-function drawGraph(actualWeights, height, goalWeight, days2goal) {
-	var startDate = moment($('#start-date').val()),
-	    startweight = findStartWeight(false, actualWeights),
-		today = moment(),
-		daysDiff = (today.diff(startDate, 'days'));
+function drawGraph(startDate, actualWeights, height, goalWeight, days2goal) {
+	var startweight = findStartWeight(false, actualWeights),
+		  today = moment(),
+		  daysDiff = (today.diff(startDate, 'days'));
 
 	var bmi = [],
 		goal = [],
@@ -247,7 +262,6 @@ function calculate(weights, age, gender, height, activityfactor, startdate, star
 function alignWeights2Dates(dates, actualWeights) {
 	// align weights to dates
 	var weights = [];
-
 	for (var i = 0; i < dates.length; i++) {
 		if (dates[i] in actualWeights) {
 			weights.push(actualWeights[dates[i]]);
