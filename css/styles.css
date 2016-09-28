@@ -9,14 +9,11 @@ body {
 
 canvas {
 	width: 100% !important;
-	height: 5% !important;
 	display: block;
 }
 
 @media screen only and (max-width: 768px) {
 	canvas {
-		max-width: 300px;
-		min-height: 400px;
 		margin: 0 auto;
 		display: block;
 	}
